@@ -1,0 +1,9 @@
+# macOS
+.DS_Store
+
+# Claude Code local config
+.claude/
+
+# Local working materials (design notes, research, internal discussions, context docs)
+# Everything under _workshop/ is private to the local dev environment and not tracked.
+_workshop/
