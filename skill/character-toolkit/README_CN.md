@@ -38,6 +38,21 @@
 
 ---
 
+## CLI-first 设计
+
+本工具包**默认在 CLI 环境**（例如 Claude Code）下运行。所有 phase-based prompt 和 `SKILL.md` 都假设以下能力可用：
+
+- 文件系统读写
+- `git rev-parse --show-toplevel` 用于自动定位项目根目录
+- `python3` + `jsonschema` 用于自动 schema 校验
+- `WebFetch` 用于获取研究阶段的源数据
+
+**对话 AI 作为逃逸通道**：如果你想在 ChatGPT / Claude.ai / Trae / Gemini 等对话 AI 里生成一张卡，**不要直接复制 `prompt-0X` 文件**——那些是为 CLI 写的。而是通过 `SKILL.md` 的 **Export 模式**：在 CLI 里调用它，告诉它目标和场景，它会输出一段适配过的自包含 prompt 供你复制到对话 AI 里执行。对话 AI 的响应（references.md + JSON）带回 CLI 后，本工具包会做校验和落盘。
+
+这个设计让 CLI 下的每一步都可以放心使用文件系统、Python 校验、WebFetch 等能力，不必为"万一在对话 AI 里跑"做让步。对话 AI 的支持通过 Export 模式单点解决。
+
+---
+
 ## 通用规则
 
 以下规则适用于所有类型的角色卡：

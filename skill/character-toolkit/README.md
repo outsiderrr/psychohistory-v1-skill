@@ -38,6 +38,21 @@ What are you generating?
 
 ---
 
+## CLI-first Design
+
+This toolkit **defaults to CLI environments** (e.g. Claude Code). All phase-based prompts and `SKILL.md` assume:
+
+- Filesystem read/write access
+- `git rev-parse --show-toplevel` available for automatic project root detection
+- `python3` + `jsonschema` available for automated schema validation
+- `WebFetch` available for retrieving source data during research phases
+
+**Chat-AI as an escape hatch**: if you want to generate a card using ChatGPT, Claude.ai, Trae, Gemini, or similar chat AIs, do not copy `prompt-0X` files directly — they are written for CLI. Instead, invoke `SKILL.md` in **Export Mode**: from your CLI session, tell it the target and scenario, and it will emit a self-contained, chat-AI-adapted prompt you can paste into your chat AI. After the chat AI responds, bring the references.md + JSON content back to your CLI session so this toolkit can validate and save them.
+
+This design lets every CLI step rely confidently on filesystem, Python validation, WebFetch, and other tools, rather than compromising for chat-AI compatibility. Chat-AI support is handled via Export Mode as a single point of adaptation.
+
+---
+
 ## Universal Rules
 
 These rules apply to every type of character card:
