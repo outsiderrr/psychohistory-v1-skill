@@ -355,7 +355,7 @@
 
 ### 产出文件（两份）
 
-1. **`/Users/outsider/Desktop/psychohistory/skill/characters/psychohistory/[agent_id].references.md`** — 主产物
-2. **`/Users/outsider/Desktop/psychohistory/skill/characters/psychohistory/[agent_id].json`** — 压缩索引
+1. **`skill/characters/psychohistory/[agent_id].references.md`** — 主产物
+2. **`skill/characters/psychohistory/[agent_id].json`** — 压缩索引
 
 不要输出中间解释。按 Phase 顺序执行到产出两份文件为止。

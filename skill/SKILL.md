@@ -92,82 +92,51 @@ IF characters/{agent_id}.json EXISTS:
 
 **Currently available official cards:** `trump.json` (more to be added)
 
-#### Tier 2: CLI Auto-Generation (CLI Environment Only)
+#### Tier 2: CLI Auto-Generation via character-toolkit (CLI Environment Only)
 
-If no official card exists AND you are in CLI environment:
+If no official card exists AND you are in CLI environment, delegate to the character-toolkit skill:
 
 ```
 IF environment == CLI:
-  → Check if Nuwa skill is installed locally
-  → If installed:
-    → Execute: npx skills run nuwa-skill "Distill {person_name}"
-    → Wait for Nuwa to complete (may take 2-3 hours for thorough distillation)
-    → Read the generated SKILL.md from the new perspective directory
-    → Convert Nuwa output to Psychohistory character card JSON format
-    → Validate against character-schema
-    → Save to characters/{agent_id}.json for future use
-  → If Nuwa not installed:
-    → Prompt user: "Nuwa skill is not installed. Install with: npx skills add alchaincyf/nuwa-skill"
-    → Fall through to Tier 3 as temporary measure
+  → Invoke psychohistory-character-toolkit (skill/character-toolkit/SKILL.md)
+  → Pass: target agent name, current scenario context, any known source URLs
+  → character-toolkit will:
+    - Route to the appropriate phase-based prompt
+      (prompt-01 for personal, prompt-02 for organization, prompt-03 for collective)
+    - For personal entities, prompt-01 internally invokes Nuwa.skill as its
+      Phase 1 cognitive distillation step
+    - Run the full phase-based flow (references.md as primary artifact,
+      JSON as compressed index, Python jsonschema validation)
+    - Save outputs to skill/characters/psychohistory/[agent_id].{json,references.md}
+  → If character-toolkit terminates with a prerequisite error:
+    - Report what's missing specifically (missing Nuwa, missing recent data,
+      missing endpoint card for a relationship, etc.)
+    - Either retry with the missing input, or fall through to Tier 3
 ```
 
-#### Tier 3: User-Provided / System-Derived (Chat Environment or Final Fallback)
+Note: Nuwa is no longer invoked directly from this router. It is now a sub-step of prompt-01-personal-entity.md Phase 1 inside character-toolkit. This gives personal-entity cards the same phase-based methodology (references.md primary, strength grading, type-specific honesty_boundaries disclaimers) as organization and collective cards.
 
-If no official card exists AND you are in Chat environment (OR CLI Tier 2 failed):
+#### Tier 3: Export Mode / User-Provided (Chat Environment or Final Fallback)
 
-```
-IF environment == CHAT (or Tier 2 failed):
-  → Pause the analysis
-  → Output the following guided prompt to the user:
-```
+If in Chat environment OR CLI Tier 2 failed irrecoverably, offer the user the following options in order of preference:
 
-**Output this message to the user:**
+**Option A (recommended, CLI available): character-toolkit Export Mode**
 
----
+From CLI, invoke `psychohistory-character-toolkit` in Export Mode. It will generate a self-contained prompt the user can paste into their preferred chat AI (ChatGPT, Claude.ai, Trae, Gemini, etc.). Once the chat AI produces output, the user returns to CLI with the references.md + JSON content, and character-toolkit validates and saves them to the canonical paths.
 
-⚠️ **Character card not found for: {person_name}**
+Instruct user: *"I'll generate an export prompt for [target]. Paste it into your preferred AI, receive the references.md + JSON output, then paste both back here so I can validate and save them."*
 
-I don't have a pre-built cognitive profile for this person. You have three options:
+**Option B: Paste an existing card**
 
-**Option A: Paste a character card**
-If you have a JSON character card (from Nuwa skill, community, or your own creation), paste it here. Required format:
+If the user already has a pre-generated JSON card (from community, previous Nuwa run, or their own prior work), they can paste it directly. Validate against character-schema v1.1. On validation failure, show specific errors and offer Option A or C.
 
-```json
-{
-  "card_version": "1.0",
-  "agent_id": "person-id",
-  "name": "Full Name",
-  "role": "Current Position",
-  "source": { "type": "user", "created_at": "YYYY-MM-DD" },
-  "mental_models": [
-    { "id": "mm-01", "name": "Model Name", "description": "How they see the world (min 20 chars)" }
-  ],
-  "decision_heuristics": [
-    { "id": "dh-01", "name": "Rule Name", "description": "Quick judgment rule (min 20 chars)" }
-  ],
-  "concession_triggers": [
-    { "id": "ct-01", "description": "Under what condition they would change stance" }
-  ],
-  "red_lines": ["What they absolutely will not accept"],
-  "honesty_boundaries": ["What this card cannot capture"]
-}
-```
+**Option C: Describe in natural language**
 
-**Option B: Describe in natural language**
-Tell me what you know about this person's thinking style, decision patterns, core values, and blind spots. I'll construct a system-derived card from your description.
+If the user wants minimal effort and Options A and B are unavailable, describe the agent's characteristics in natural language (thinking style, decision patterns, core values, blind spots). Construct a `system-derived` card from the description. Tag `source: system-derived`. Warn that this produces a shallow card suitable only for low-stakes analysis — upgrade via Option A or B before serious use.
 
-**Option C: Proceed without a card**
-I'll analyze this person based on publicly known information, but the cognitive modeling will be shallower. The analysis will be tagged `source: system-derived` throughout.
+**Option D: Proceed without a card**
 
----
-
-```
-→ If user provides JSON: validate against character-schema
-  → If valid: load and continue
-  → If invalid: show specific errors, ask user to fix
-→ If user provides natural language: construct card, tag source: system-derived
-→ If user chooses Option C: proceed with shallow modeling
-```
+Analyze the agent based on publicly known information without a formal card. All reasoning about this agent is tagged `source: system-derived`. The modeling will be shallower; use only for low-stakes or illustrative scenarios.
 
 #### Validation Gate
 

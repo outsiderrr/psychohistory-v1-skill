@@ -38,8 +38,8 @@
 
 在做任何调研之前，必须确认以下内容。**任何一项不满足，流程终止**，要求用户先生成或修复端点卡。
 
-- [ ] `/Users/outsider/Desktop/psychohistory/skill/characters/psychohistory/[agent_a_id].json` 存在
-- [ ] `/Users/outsider/Desktop/psychohistory/skill/characters/psychohistory/[agent_b_id].json` 存在
+- [ ] `skill/characters/psychohistory/[agent_a_id].json` 存在
+- [ ] `skill/characters/psychohistory/[agent_b_id].json` 存在
 - [ ] 两张卡都通过 character-schema v1.1 校验
 - [ ] 两张卡的 `affiliation` 字段可以推出"是否同属一个共同体"
 - [ ] 两张卡的 `data_cutoff` 与场景时间窗口不冲突（如果卡是 6 个月前生成的但场景是本周，必须警告用户）
@@ -251,7 +251,7 @@
 
 ### 产出文件
 
-1. **`/Users/outsider/Desktop/psychohistory/skill/characters/relationships/[relationship_id].references.md`** — 主产物
-2. **`/Users/outsider/Desktop/psychohistory/skill/characters/relationships/[relationship_id].json`** — 压缩索引
+1. **`skill/characters/relationships/[relationship_id].references.md`** — 主产物
+2. **`skill/characters/relationships/[relationship_id].json`** — 压缩索引
 
 不要输出中间解释。按 Phase 顺序执行到产出两份文件为止。

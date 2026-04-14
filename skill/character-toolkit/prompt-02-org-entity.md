@@ -300,7 +300,7 @@
 
 ### 产出文件
 
-1. **`/Users/outsider/Desktop/psychohistory/skill/characters/psychohistory/[agent_id].references.md`** — 主产物。包含 Phase 0-4 所有调研笔记、案例、证据链
-2. **`/Users/outsider/Desktop/psychohistory/skill/characters/psychohistory/[agent_id].json`** — 压缩索引，按 Phase 5 的结构从 references.md 编译而成
+1. **`skill/characters/psychohistory/[agent_id].references.md`** — 主产物。包含 Phase 0-4 所有调研笔记、案例、证据链
+2. **`skill/characters/psychohistory/[agent_id].json`** — 压缩索引，按 Phase 5 的结构从 references.md 编译而成
 
 不要输出中间解释。按 Phase 顺序执行到完成，产出两份文件后停止。
