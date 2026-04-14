@@ -1,5 +1,6 @@
 {
   "card_version": "1.0",
+  "card_type": "personal-entity",
   "agent_id": "trump",
   "name": "Donald Trump",
   "role": "US President (2nd term)",
