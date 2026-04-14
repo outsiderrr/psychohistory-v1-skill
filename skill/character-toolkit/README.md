@@ -50,6 +50,23 @@ These rules apply to every type of character card:
 
 ---
 
+## Methodology Principles (v1.1)
+
+The following 5 principles apply across all **phase-based prompts** (prompt-02 / 03 / 04) and form the foundation of the character-card generation methodology. prompt-01 (personal entity) inherits principles 1, 3, 4, and 5 through its dependency on the Nuwa multi-phase distillation pipeline; principle 2 applies to it as well.
+
+1. **Two-stage minimum** — Research phase first, structuring phase second. Never go directly from blank to JSON.
+2. **references.md is the primary artifact** — JSON is its compressed index. Write the notes first → compile the JSON from them → verify every JSON field points back to specific evidence in references.md.
+3. **Evidence strength grading** — Every conclusion is annotated `strength: high / medium / low`. `high` requires multi-case support; `low` is allowed but must be explicitly flagged.
+4. **Explicit cognitive boundaries** — `honesty_boundaries` must include type-specific declarations:
+   - Organizations: factional divergence disclaimer
+   - Collectives: internal heterogeneity disclaimer
+   - Relationships: scenario-binding disclaimer
+5. **Historical precedent priority** — Reasoning backed by historical cases ranks above pure theoretical reasoning; precedent-free inferences are flagged `strength: low`.
+
+These 5 are **hard requirements**, not suggestions. Any JSON produced by a phase-based prompt that violates any of them must go back to the corresponding Phase to add evidence or correct its strength grading.
+
+---
+
 ## Save Paths
 
 | Type | Path |
