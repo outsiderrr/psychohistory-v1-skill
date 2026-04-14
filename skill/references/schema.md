@@ -168,10 +168,31 @@ Collective agents use a four-layer profile instead of Nuwa distillation.
       "target_agent": "trump",
       "mechanism": "Poll approval ratings → Trump's 'Scorecard Test' decision heuristic",
       "description": "Base erosion transmits through declining approval ratings, triggering Trump's concession condition ct-04"
-    }
+    },
+    "observable_state": [
+      {
+        "state_id": "maga-approval-rating",
+        "description": "MAGA base approval rating for Trump (rolling polling average)",
+        "measurement_method": "7-day rolling average of major polls (Gallup, Rasmussen, Harris, etc.)",
+        "current_value": "approx 58% approve",
+        "thresholds_of_interest": [
+          {
+            "threshold": "below 50%",
+            "strategic_implication": "Trump's concession_trigger ct-04 activates; retreat threshold on Iran confrontation drops significantly"
+          },
+          {
+            "threshold": "below 42%",
+            "strategic_implication": "Trump faces genuine base revolt; ct-04 fully activated; may seek a de-escalation framing opportunity"
+          }
+        ],
+        "promotable_to_event": true
+      }
+    ]
   }
 }
 ```
+
+**On `observable_state`**: collective agents can expose measurable macro indicators (polling averages, market prices, sentiment indices, voting intentions) whose changes directly cascade into entity decisions. When any observable state crosses a strategically relevant threshold, it should be promoted to a first-class Event node on the possibility tree, not treated as an internal parameter of an entity agent's decision function. This gives group-driven causality (market panics, sentiment phase transitions, social cascades) explicit structural status. Supporting collective-driven branches at runtime is planned for the engine module — see [`../../engine/README.md`](../../engine/README.md).
 
 ---
 
@@ -298,11 +319,55 @@ Events use Polymarket-style precise proposition definitions, satisfying four req
 }
 ```
 
+### Event Interpretation Layer (optional)
+
+In multi-agent scenarios, the same raw event can be read through different cognitive frameworks to produce different predicted responses. When an event is strategically ambiguous — i.e. different key agents would likely interpret it differently — attach an `interpretations` array to the event specifying how each key agent filters it through their mental models.
+
+This makes the `[PSY]` engine's reasoning explicit rather than buried inside branch rationales, enables "what if agent X reads this differently" hypothetical simulations, and provides the natural hook for theory validation mode (alternative cognitive frameworks rewrite interpretations).
+
+Interpretations are optional. Events where all relevant agents would read them identically do not need them; include them only when real ambiguity of framing exists.
+
+```json
+{
+  "event_id": "evt-015",
+  "proposition": "Iran announces unilateral toll regime on the Strait of Hormuz",
+  "interpretations": [
+    {
+      "agent_id": "trump",
+      "filtered_through": ["mm-01 Everything Is a Deal", "mm-03 Personalize Everything"],
+      "dominant_reading": "personal challenge to Trump's negotiation authority",
+      "predicted_response_direction": "escalate",
+      "rationale": "Trump has publicly framed the strait as 'his' deal; a unilateral Iranian action bypasses the negotiation channel and triggers mm-03, raising his retreat threshold"
+    },
+    {
+      "agent_id": "irgc-leadership",
+      "filtered_through": ["mm-01 Resistance as Identity"],
+      "dominant_reading": "sovereignty assertion victory",
+      "predicted_response_direction": "reinforce existing posture",
+      "rationale": "The action embodies IRGC's core legitimacy claim — that Iran controls its own waters without foreign consent"
+    },
+    {
+      "agent_id": "maga-base",
+      "filtered_through": ["core_interests[1]: economic cost of living"],
+      "dominant_reading": "potential oil price shock",
+      "predicted_response_direction": "support erosion risk",
+      "rationale": "Base disposition is rated sensitive to sustained oil price surges; toll regime introduces upward price pressure"
+    }
+  ]
+}
+```
+
 ---
 
 ## 6. Possibility Tree
 
 The tree consists of multiple Event nodes. Each node produces mutually exclusive branches ranked from most to least likely (`likelihood_rank` = 1 is most likely). The system does not output precise probabilities.
+
+**Time-scale rule**: Every branch must declare a `resolution_horizon` — the time scale within which this branch would be resolved. Only branches with compatible resolution horizons should be ranked against each other; a branch that resolves in days and a branch that resolves in months are answering different questions and should not compete on the same ranking. Use this field to filter tree views by user-selected time window.
+
+Recommended horizon buckets: `immediate` (hours), `short` (days to a week), `medium` (2-6 weeks), `long` (1-6 months), `strategic` (6+ months). Free-form values like `"2-4 weeks"` are also accepted.
+
+**Credibility check**: Before finalizing branch rankings, the `[GT]` engine must apply a game-theoretic closure check to each rank-1 and rank-2 branch — see `SKILL.md` Phase 5.3. Branches that fail closure (i.e. the deciding agent would not actually choose them if they fully anticipated downstream agent reactions) must be downgraded or explicitly flagged as depending on a `[PSY]` bounded-rationality override.
 
 ```json
 {
@@ -318,6 +383,7 @@ The tree consists of multiple Event nodes. Each node produces mutually exclusive
         {
           "branch_id": "branch-001c",
           "outcome": "No — hostilities resume after ceasefire expires",
+          "resolution_horizon": "short",
           "likelihood_rank": 1,
           "ranking_rationale": "[GT] All three sticking points touch core interests; negotiation space is minimal; [PSY] Trump's 'Personalize Everything' is activated, retreat threshold is very high; [ORG] Israel continues to pressure, acting as deal-breaker",
           "next_node": "node-002c"
@@ -325,6 +391,7 @@ The tree consists of multiple Event nodes. Each node produces mutually exclusive
         {
           "branch_id": "branch-001b",
           "outcome": "No — no deal signed, but de facto ceasefire holds (neither side resumes large-scale operations)",
+          "resolution_horizon": "medium",
           "likelihood_rank": 2,
           "ranking_rationale": "[GT] Both sides have incentives to avoid full escalation — US faces oil price pressure, Iran has limited military resources; [ORG] Restarting large-scale operations requires logistical preparation, inertia delays action",
           "next_node": "node-002b"
@@ -332,6 +399,7 @@ The tree consists of multiple Event nodes. Each node produces mutually exclusive
         {
           "branch_id": "branch-001a",
           "outcome": "Yes — ceasefire extension agreement signed",
+          "resolution_horizon": "short",
           "likelihood_rank": 3,
           "ranking_rationale": "[GT] Three core issues (strait, enriched uranium, frozen assets) all unresolved; [PSY] Vance called it the 'final offer', Iran announced no further talks planned; [ORG] IRGC resistance makes any compromise extremely difficult to pass internally",
           "next_node": "node-002a"

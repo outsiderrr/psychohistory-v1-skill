@@ -196,6 +196,46 @@
         "type": "string"
       },
       "description": "What this card CANNOT capture. Required for transparency."
+    },
+    "alternative_frameworks": {
+      "type": "array",
+      "description": "Optional. Alternative cognitive frameworks for this agent, reserved for theory validation mode (see engine/README.md). Each entry is a partial or complete replacement set; when activated, the engine runs the scenario with the overridden mental models and decision heuristics and compares the resulting tree to the primary version. Cards can omit this field entirely, include an empty array, or populate it.",
+      "items": {
+        "type": "object",
+        "required": ["framework_id", "name", "description"],
+        "properties": {
+          "framework_id": {
+            "type": "string",
+            "pattern": "^alt-[a-z0-9-]+$",
+            "description": "Unique identifier, e.g. 'alt-fed-asset-protector'"
+          },
+          "name": {
+            "type": "string",
+            "description": "Short descriptive name of the alternative hypothesis"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 20,
+            "description": "What this alternative framework proposes and why it is worth testing"
+          },
+          "proposed_by": {
+            "type": "string",
+            "enum": ["user", "nuwa-skill", "system-derived"]
+          },
+          "mental_models_override": {
+            "type": "array",
+            "description": "Mental models that replace or augment the primary ones when this framework is active. Same item schema as the top-level mental_models array."
+          },
+          "decision_heuristics_override": {
+            "type": "array",
+            "description": "Decision heuristics that replace or augment the primary ones when this framework is active. Same item schema as the top-level decision_heuristics array."
+          },
+          "rationale": {
+            "type": "string",
+            "description": "Why this alternative is worth testing; what observation or question motivates it"
+          }
+        }
+      }
     }
   }
 }

@@ -154,12 +154,28 @@ Core belief: **Not helping you compute answers, but helping you ask the right qu
 
 ## Roadmap
 
-- [x] Protocol layer schema definition
-- [x] Skill version (current)
-- [ ] Standalone web app (visual probability tree + interactive scenario planning)
-- [ ] Reverse convergence tree (work backwards from a target outcome to map prerequisite condition chains; complements the forward divergence tree)
-- [ ] Theory validation mode (user proposes causal hypothesis, system searches for supporting/opposing evidence)
-- [ ] Automated collective agent profiling
+### Implemented (current)
+
+- [x] Protocol layer schema — agents, relationships, hard constraints, events, possibility tree
+- [x] Character card system — standardized JSON cards with schema validation
+- [x] Character card generation toolkit (`character-toolkit/`) — prompts for personal / organization / collective / relationship cards
+- [x] Forward divergence tree with ordinal likelihood ranking
+- [x] Three-engine analysis ([GT] / [PSY] / [ORG]) with historical precedent priority
+- [x] Fact injection and hypothetical simulation interaction modes
+- [x] Event interpretation layer (same raw event filtered through each agent's cognitive framework)
+- [x] Branch credibility check (game-theoretic closure for high-ranked branches)
+- [x] Branch resolution horizons (time-scale annotation; incomparable-horizon branches are not ranked against each other)
+- [x] `alternative_frameworks` hook on character cards — structural preparation for theory validation mode
+- [x] Collective agent `observable_state` spec — structural preparation for first-class group-driven events
+
+### Planned — see [engine/README.md](../engine/README.md) for the full vision
+
+These require programmatic execution beyond what markdown prompts alone can do:
+
+- [ ] **Reverse inference mode** — given a target outcome, trace backward to identify the precondition event chains that would meaningfully raise its likelihood. A separate inference subsystem, not the forward tree reversed
+- [ ] **Theory validation mode** — run the scenario with alternative cognitive frameworks applied to one or more agents via the `alternative_frameworks` hook, compare against observed history, and generate distinguishing forward predictions
+- [ ] **Collective agents as first-class causal nodes** — promote `observable_state` values to Event nodes on the tree when thresholds become strategically relevant, so market panics and sentiment phase transitions have a structural home rather than being hidden inside entity decision functions
+- [ ] Standalone web app for visual tree + interactive scenario planning
 - [ ] Deep integration with Nuwa.skill
 
 ## License

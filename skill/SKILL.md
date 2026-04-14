@@ -270,15 +270,34 @@ For the root node, list all reasonable mutually exclusive possibilities (typical
 
 Each branch contains:
 - **Outcome description**
-- **Ranking position** (rank 1 = most likely)
+- **Resolution horizon** — the time scale in which this branch would be resolved (e.g. `short` for days, `medium` for 2-6 weeks, `long` for months, `strategic` for 6+ months). Branches with radically different horizons answer different questions and should not be ranked against each other directly
+- **Ranking position** (rank 1 = most likely, within the same resolution horizon)
 - **Ranking rationale** (tagged by engine: [GT] / [PSY] / [ORG], with historical precedents where applicable)
 - **Next-level node** (if further expansion is needed)
 
-#### 5.3 Expand Key Branches
+#### 5.3 Branch Credibility Check (Game-Theoretic Closure)
+
+Before finalizing branch rankings, apply a closure check to each highly-ranked branch (especially ranks 1-2):
+
+**Ask**: If the deciding agent had fully anticipated all downstream agent responses at decision time, would this branch still be their optimal choice?
+
+**Why this matters**: The tree is generated serially (agent A decides → agent B reacts → agent C reacts), but real strategic decision-makers reason with anticipation — they model what the other side will do *before* committing to their own move. A branch that requires decision-makers to ignore obvious downstream consequences is not a Nash-credible path, no matter how "locally reasonable" each step looks in isolation.
+
+**Procedure**:
+1. Take a candidate rank-1 or rank-2 branch
+2. Walk forward through its 1-2 levels of downstream consequences
+3. Ask: given those consequences, would the original deciding agent still make this choice *if they had fully anticipated them at decision time*?
+4. If no → either (a) downgrade the branch, (b) refactor it to reflect the underlying strategic commitment / deterrence problem, or (c) explicitly flag via [PSY] that the branch depends on a bounded-rationality or emotional-override assumption that interrupts the agent's anticipatory reasoning
+
+**Example**: "US strikes Iranian oil infrastructure → Iran closes Strait of Hormuz → oil shock" looks locally coherent at every step. Closure check: at the moment of the US strike decision, would the US still strike if they fully anticipated Iran would close the strait? If yes (US judges itself willing to absorb the oil shock to force capitulation), the branch stands. If no (US cost-benefit flips once the oil shock is factored in), the branch is not Nash-credible — the real strategic question shifts to "how credible is Iran's threat to close the strait?" rather than "does the US strike?"
+
+**Document the result**: In each branch's `ranking_rationale`, note whether it passed the credibility check. If it required a [PSY] override (e.g. "Trump's mm-03 Personalize Everything suppresses anticipatory reasoning once confrontation is personalized"), tag that assumption explicitly.
+
+#### 5.4 Expand Key Branches
 
 For higher-ranked branches, define the next level of event nodes to form a tree structure. Depth is determined by user needs.
 
-#### 5.4 Output Format
+#### 5.5 Output Format
 
 ```
 🌳 Possibility Tree: [Core Question]
