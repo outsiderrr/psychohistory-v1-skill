@@ -31,24 +31,64 @@ This is **not** the forward possibility tree reversed. It is a separate inferenc
 - **Output**: ranked list of "precondition paths" — each path is a chain of prerequisite events that, if they occurred, would meaningfully shift the target event's likelihood
 - **Algorithm sketch**: identify the target event's direct agent-decision dependencies → recursively trace each agent's `concession_triggers` and their upstream drivers → terminate when reaching observable events the user can monitor
 
-### 2. Theory Validation Mode
+### 2. Theory Validation Mode (two sub-modes)
 
-Users can propose a theory about how the world works, and the engine tests it against both historical facts and forward predictions.
+Theory Validation is about **mapping between observed events and underlying agent decision models**, via the `alternative_frameworks` hook on character cards (see `../skill/references/character-schema.md`). It runs in **two directions**: user-provided hypothesis testing (**2a**) and system-generated abductive inference (**2b**). Both sub-modes share the same validation machinery — they differ only in **who generates the candidate theory**.
 
-**The key insight**: in the Psychohistory data model, a theory is naturally expressed as *a perturbation to one or more agent cognitive frameworks*. Examples:
+**The key insight shared by both sub-modes**: in the Psychohistory data model, a "theory" is naturally expressed as *a perturbation to one or more agent cognitive frameworks*. Examples:
 
 - *"The Fed's real goal is asset price protection, not inflation control"* → replace the Fed's `mental_models` with an alternative set
 - *"Trump is effectively controlled by Peter Thiel through JD Vance"* → add a high-weight `concession_trigger` on Trump keyed to Vance's preferences, and supplement Trump's mental models
 - *"There is a coordinating group among global elites"* → add a new hidden agent with influence relationships to other agents
 
-This is why every character card already has an optional `alternative_frameworks` field — it is the structural hook for this mode.
+This is why every character card has an optional `alternative_frameworks` field — it is the structural hook for **both** sub-modes.
 
-**Validation procedure**:
+#### 2a. User-provided theory validation (hypothesis testing)
+
+The user proposes a specific theory; the engine tests it.
+
+**Input**: one alternative framework (specific `mental_models_override` / `decision_heuristics_override`, etc.)
+
+**Procedure**:
 
 1. Run the scenario twice — once with the standard agent frameworks, once with the theory-perturbed frameworks
 2. Compare each run's explanatory power against observed historical events: which run "predicts" the real past better?
 3. Compare each run's forward predictions: which future events would distinguish the two theories?
-4. Output: a verdict on the theory's consistency with history + a list of upcoming events whose outcomes would differentiate the standard and theory-perturbed worldviews
+4. Output: a verdict on the theory's consistency with history + a list of upcoming events whose outcomes would differentiate the two worldviews
+
+**Use when**: the user already has a specific hypothesis to test (e.g., "I think the Fed's real objective is X, not Y").
+
+#### 2b. System-generated abductive inference (observation → model)
+
+Instead of the user providing the theory, the system **generates candidate theories from observed events** and tests them. This is **abductive inference** — reasoning from observed effects back to the most likely underlying decision model.
+
+**Input**: a set of ≥3-5 observed events about the target agent(s).
+
+**Procedure**:
+
+1. For each involved agent, generate N candidate alternative frameworks that could plausibly explain the observed events (**diverse hypothesis generation**, not just "the obvious one")
+2. Gather additional known facts about the agent via Research Hand-off or existing references
+3. Run the sub-mode 2a validation procedure on each candidate, in parallel
+4. Rank candidates by **total explanatory power across all observed events + consistency with hard constraints**
+5. Output: a ranked list of candidates. The best-supported one may be promoted to the agent's primary framework; others are kept as `alternative_frameworks` entries
+
+**Use when**:
+
+- A new event occurs (e.g., *"Pakistan military stationed at a Saudi air base"*) and you want to understand what it reveals about the participants' decision models
+- Multiple related events lack a unified explanation → the system proposes candidate theories
+- An agent's official mental model doesn't match its observed behavior → the system generates better-fitting alternatives
+
+**Epistemological risks** (must be declared in the output's `honesty_boundaries`):
+
+- **Underdetermination** — a single event usually has many plausible mental-model explanations. 2b **requires ≥3-5 observed events** for meaningful cross-consistency checking; **single-event abductive inference is not reliable**
+- **Confirmation bias trap** — the system must explicitly generate and retain multiple candidates; never lock onto "the obvious one"
+- **Open model space** — the true decision model may not be among the generated candidates. 2b output is **"the best explanation under current data"**, not a causal proof
+
+**Relation to 2a**: 2b is essentially *"run 2a in parallel on N system-generated hypotheses and rank the results"*. Shared validation back-end; different candidate-generation front-end. They are not two independent subsystems.
+
+### Implementation strategy
+
+Both sub-modes share the core validation machinery. 2a is the base case (single user-provided hypothesis); 2b adds a hypothesis-generation front-end on top. The skill stage can already **approximate 2b manually** (user + AI brainstorm candidate frameworks, then walk through consistency checking case by case — see principle 14 in the long-term design decisions). The engine stage will automate candidate generation, run parallel validations, and rank programmatically.
 
 ### 3. Collective Agents as First-Class Causal Nodes
 
