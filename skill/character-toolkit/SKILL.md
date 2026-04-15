@@ -98,6 +98,36 @@ From the user's target description, determine the card type:
 
 ---
 
+## Step 2.5 — Gather Required Inputs from the Target Prompt's Phase 0
+
+Before invoking the selected prompt's Phase flow, **read its Phase 0 section** using the `Read` tool and identify all required user-supplied inputs. For each required input that was not already provided in the user's initial request, ask the user to provide it. **Do not proceed to Step 3 until all required Phase 0 inputs are collected.**
+
+This intake step exists because `prompt-0X` files have mandatory Phase 0 inputs (scenario background, modeling granularity, endpoint card IDs for relationships, etc.) that the orchestration layer cannot infer from the user's initial intent alone. Without this step, the orchestrator would route to the prompt and let it ask — causing the first Phase to stall on missing parameters.
+
+### Required inputs by card type
+
+| Prompt | User-supplied Phase 0 inputs | Notes |
+|---|---|---|
+| `prompt-01-personal-entity.md` | target person name (full English), current role, scenario context (optional) | `data_cutoff` is operational — the skill fills it in, not the user |
+| `prompt-02-org-entity.md` | target organization name (English), scenario background, modeling granularity (whole organization / specific department), related personal-entity card `agent_id`s (optional) | `current size` is **research output**, goes into Phase 1.6, NOT a Phase 0 input |
+| `prompt-03-collective.md` | target group name, `target_agent_id` (which entity agent this collective affects), scenario background, time window | Without a `target_agent_id`, the collective card has no modeling purpose and should be rejected |
+| `prompt-04-relationship.md` | `agent_a_id`, `agent_b_id`, scenario background + **verify both endpoint cards exist and pass schema validation** | This is the Phase 0 hard gate; failure terminates the flow immediately |
+
+### Intake procedure
+
+1. Read the selected prompt-0X file and locate its `## Phase 0` section
+2. Enumerate each required input. Distinguish between **user-supplied** (needs asking) and **operational** (the skill fills in automatically: `data_cutoff`, date stamps, `created_at`, etc.)
+3. Compare against what the user already provided in their initial message
+4. **Only ask for inputs that are still missing.** Do not re-ask inputs the user already specified
+5. Briefly confirm the full parameter set in one line before proceeding, for example: *"生成组织卡 IRGC，场景：2026-04 美伊停火期即将到期，粒度：整体组织，无关联个人卡"*
+6. Then proceed to Step 3
+
+If the user provides a specific target but no scenario background, ask: *"这张卡对应的场景背景是什么？（可以是一句话，比如 '2026-04 美伊停火期即将到期'）"*
+
+If the user provides nothing beyond "generate a card for X", ask the required inputs as a short list, not one-by-one.
+
+---
+
 ## Step 3 — Execute the Selected Prompt's Phase Flow
 
 Read the selected prompt file via the `Read` tool and follow its Phase 0 → Phase N sequence exactly as specified. Each phase-based prompt is self-describing; **this skill's role is orchestration, not reimplementation**. The phase content lives in the prompt files.
@@ -206,6 +236,16 @@ Use the paths computed in Step 1. Always write to the canonical path — do not 
 ---
 
 ## Step 4 — Schema Validation
+
+**Prerequisite (one-time setup)**: the `jsonschema` Python package must be installed. If not already available:
+
+```bash
+pip install jsonschema
+# or, for a user-local install without sudo:
+pip install --user jsonschema
+```
+
+The skill does **not** auto-install dependencies. If `jsonschema` is missing when Step 4 runs, the validation script (below) gracefully falls back: it prints an install instruction, marks the card as "saved but not schema-validated", and exits 0. The user can install `jsonschema` later and manually re-run validation with the same Python block. This fallback is documented in §Failure Modes.
 
 After the selected prompt's final Phase produces JSON, run JSON Schema validation against `skill/references/character-schema.md`:
 

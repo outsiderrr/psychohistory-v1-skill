@@ -44,7 +44,7 @@ This toolkit **defaults to CLI environments** and is **portable across CLI agent
 
 - Filesystem read/write access
 - `git rev-parse --show-toplevel` for automatic project root detection
-- `python3` + `jsonschema` for automated schema validation
+- `python3` + `jsonschema` for automated schema validation (one-time setup: `pip install jsonschema` — not auto-installed; see `SKILL.md` §Step 4)
 - **A user with access to a chat AI with search capability** (Perplexity, ChatGPT with Search, Gemini Deep Research, Claude.ai, Kimi, 豆包, 元宝, etc.) — used by the **Research Hand-off** protocol during research phases
 
 ### Research Hand-off (not WebFetch)
