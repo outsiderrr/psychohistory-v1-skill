@@ -63,6 +63,23 @@
 
 如果你想**整张卡**都在对话 AI 里生成（不用 CLI），在 CLI 里调用 `SKILL.md` 的 **Export 模式**。它会输出一段适配过的自包含提示词，你复制到 ChatGPT / Claude.ai / Trae / Gemini 等里执行。完成后把 references.md + JSON 内容带回 CLI 做校验和落盘。
 
+### 通过 wrapper 脚本自动化研究（已可用）
+
+`research-wrappers/` 子目录提供了一组参考 Bash 脚本，通过直接调用有搜索能力的 LLM API 来自动化 Research Hand-off 的复制粘贴步骤。用户把 `PSYCHOHISTORY_RESEARCH_TOOL` 环境变量设置为 wrapper 脚本的路径，`SKILL.md` Step 3.1.0 就会自动把研究提示词通过 wrapper 路由——**完全跳过手动复制粘贴**。
+
+支持的 wrapper（参考模板）：
+
+- **Perplexity** (`perplexity.sh`) —— 专用研究型 LLM，推荐默认
+- **Anthropic Claude** (`anthropic.sh`) —— 用 Claude + `web_search` 工具
+- **OpenAI** (`openai.sh`) —— 用 `gpt-4o-search-preview`
+- **Google Gemini** (`gemini.sh`) —— 用 Gemini 2.5 Pro + `google_search` grounding
+
+**主要为自带 API 密钥的 CLI agent 用户准备**（OpenClaw / Cline / Aider / goose / continue.dev 等）—— 这类用户正常使用 CLI agent 就需要在环境变量里配 API 密钥。Claude Code 用户也能用，只需要独立配一个专门用于研究步骤的 API 密钥即可。
+
+如果 wrapper 执行失败（非零退出码、空输出、超时），skill 会降级到标准 Research Hand-off。不配置 `PSYCHOHISTORY_RESEARCH_TOOL` 的用户继续用 Research Hand-off，工作流不变。
+
+详见 [`research-wrappers/README_CN.md`](./research-wrappers/README_CN.md)——配置步骤、wrapper 契约、成本估算、验证指南。**所有 wrapper 脚本都是基于 2025-05 API 形态写的参考模板——真实使用前请先对照当前服务商文档验证。**
+
 ### 可选增强：MCP 集成（当前未开发）
 
 如果你的 CLI agent 支持 **MCP（Model Context Protocol）** 且配置了搜索类 MCP server（如 Perplexity MCP / Brave Search MCP），Research Hand-off 的复制粘贴步骤理论上可以被 MCP 工具调用替代——skill 直接调用 MCP 工具、收到研究结果，跳过用户的手动粘贴。

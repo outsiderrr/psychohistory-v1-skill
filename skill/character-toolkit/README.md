@@ -63,6 +63,23 @@ This keeps the toolkit portable across CLI agents — any CLI agent that can rea
 
 If you want to generate an **entire card** inside a chat AI rather than using CLI at all, invoke `SKILL.md` in **Export Mode**. It produces a self-contained, chat-AI-adapted prompt you can paste into ChatGPT / Claude.ai / Trae / Gemini / etc. After the chat AI responds, bring the `references.md` + JSON content back to your CLI session for validation and saving.
 
+### Automated research via wrapper scripts (available now)
+
+The `research-wrappers/` subdirectory provides reference Bash scripts for automating the Research Hand-off copy-paste via direct API calls to search-capable LLMs. Users set the `PSYCHOHISTORY_RESEARCH_TOOL` environment variable to an executable wrapper path, and `SKILL.md` Step 3.1.0 automatically routes research prompts through it — skipping the manual copy-paste entirely.
+
+Supported wrappers (reference templates):
+
+- **Perplexity** (`perplexity.sh`) — dedicated research LLM, recommended default
+- **Anthropic Claude** (`anthropic.sh`) — uses Claude with `web_search` tool
+- **OpenAI** (`openai.sh`) — uses `gpt-4o-search-preview`
+- **Google Gemini** (`gemini.sh`) — uses Gemini 2.5 Pro with `google_search` grounding
+
+**This is primarily for CLI agents that bring their own API key** (OpenClaw / Cline / Aider / goose / continue.dev / etc.) — where users already have API keys in environment variables as part of normal agent setup. Claude Code users can also use this by configuring a separate API key for the research step.
+
+If the wrapper fails (non-zero exit, empty output, timeout), the skill falls back to standard Research Hand-off. Users who don't configure `PSYCHOHISTORY_RESEARCH_TOOL` continue using Research Hand-off with no change.
+
+See [`research-wrappers/README.md`](./research-wrappers/README.md) for setup, the wrapper contract, cost estimates, and verification guidance. **All wrapper scripts are reference templates based on 2025-05 API shapes — verify against current provider docs before trusting for real work.**
+
 ### Optional enhancement: MCP integration (not currently developed)
 
 If your CLI agent supports **MCP (Model Context Protocol)** and you have a search MCP server configured (e.g. Perplexity MCP, Brave Search MCP), the Research Hand-off copy-paste step could in principle be replaced by direct MCP tool calls — the skill would invoke the MCP tool and receive research results inline, skipping the user's manual copy-paste.

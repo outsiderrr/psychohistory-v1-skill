@@ -104,11 +104,44 @@ Read the selected prompt file via the `Read` tool and follow its Phase 0 → Pha
 
 ### 3.1 Research Phase Handling — Research Hand-off protocol
 
-When a Phase requires external research (historical cases, recent decisions, polling data, market movements, current organizational state, interaction history), use the **Research Hand-off** protocol described below.
+When a Phase requires external research (historical cases, recent decisions, polling data, market movements, current organizational state, interaction history), follow the degradation chain below.
 
-**The 12-month rule**: For any content falling within the most recent 12 months relative to today's date, **default to Research Hand-off**. Do not trust the executing AI's training knowledge for fresh data — it may be inaccurate, stale, or hallucinated. Training knowledge is reliable only for stable historical content that has settled into the record.
+**The 12-month rule**: For any content falling within the most recent 12 months relative to today's date, **do not trust the executing AI's training knowledge**. Fresh data is often inaccurate, stale, or hallucinated. Training knowledge is reliable only for stable historical content that has settled into the record.
 
-**Protocol**:
+**Degradation chain (check each option in order; use the first one available)**:
+
+#### 3.1.0 — Wrapper script shortcut (check first)
+
+Before invoking the full Research Hand-off protocol, check if the user has configured an automated research tool via the `PSYCHOHISTORY_RESEARCH_TOOL` environment variable.
+
+```bash
+echo "$PSYCHOHISTORY_RESEARCH_TOOL"
+```
+
+If it is set AND points to an executable file:
+
+1. Fill in the research prompt as you would for Step 3 of the main protocol (load the prompt-0X `## Appendix: Research Hand-off Template`, substitute placeholders)
+2. Pipe the filled prompt via stdin to the executable, capture stdout:
+   ```bash
+   FILLED_PROMPT=$(...)  # constructed by this skill
+   RESEARCH_RESULT=$(echo "$FILLED_PROMPT" | "$PSYCHOHISTORY_RESEARCH_TOOL")
+   ```
+3. If exit code is 0 and stdout is non-empty:
+   - Use `$RESEARCH_RESULT` as the research findings, **skip to Step 6 of the main protocol** (integration into references.md)
+   - Skip the user-copy-paste dance entirely
+4. If the wrapper fails (non-zero exit code, empty output, timeout, or error string on stderr):
+   - Report the failure to the user (show the wrapper's stderr)
+   - Fall through to the standard Research Hand-off protocol below (steps 1-7)
+
+**This shortcut is primarily for users of CLI agents that bring their own API key** (OpenClaw, Cline, Aider, goose, continue.dev, etc.), who can configure a ready-to-use wrapper script from `character-toolkit/research-wrappers/`. Claude Code users whose Anthropic credentials are not exposed to the shell can still set up a separate API key (e.g., Perplexity) for this step.
+
+If `PSYCHOHISTORY_RESEARCH_TOOL` is not set → proceed with the standard protocol below.
+
+See `character-toolkit/research-wrappers/README.md` for available reference scripts (Perplexity, Anthropic, OpenAI, Gemini), setup instructions, and the wrapper contract.
+
+#### 3.1.1 — Standard Research Hand-off protocol (manual copy-paste)
+
+If the wrapper shortcut is unavailable or failed, use the standard protocol:
 
 1. **Identify the research need** based on the current Phase of the loaded prompt-0X file. Typical needs:
    - `prompt-02` (organization) — historical decision cases, factional structure, current trajectory, key dependencies
