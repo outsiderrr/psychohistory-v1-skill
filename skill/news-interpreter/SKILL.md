@@ -49,7 +49,7 @@ When you observe events that **lack a unified explanation** and want to understa
 This skill reads character cards from `characters/psychohistory/` as **data inputs** for the [PSY] engine. It does not generate cards.
 
 - **If a card exists** for a relevant agent -> load it
-- **If a card does not exist** -> inform the user: *"No character card found for [agent]. For deeper analysis, generate one first using `character-toolkit`. Proceeding with publicly known behavior patterns (shallower [PSY] analysis)."*
+- **If a card does not exist** -> apply the **card-building decision criterion**: If the agent is a **primary decision-maker** in any core event — meaning their motivation is needed to discriminate between candidate theories — building a card is mandatory for deep analysis. If the agent is a peripheral actor whose decision model would not change the ranking of any candidate theory, proceeding without a card (`strength: low` on all [PSY] reasoning for that agent) is acceptable. When skipping, inform the user: *"No character card for [agent]. Their role is peripheral to the core observation set — proceeding with publicly known behavior patterns (shallower [PSY] analysis, tagged strength: low)."* When building, inform: *"No character card for [agent], but they are a primary decision-maker in [event]. Recommend generating one via `character-toolkit` before proceeding."*
 - **If a card exists but `data_cutoff` is stale** -> flag it and offer incremental Research Hand-off
 
 ### Card Freshness Check

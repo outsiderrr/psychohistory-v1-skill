@@ -20,6 +20,7 @@ This skill is designed for **CLI environments** and is **portable across CLI age
 - **Python 3** with the `jsonschema` library (or pip-installable: `pip install jsonschema`)
 - **git** for project root detection
 - **A user with access to a chat AI with search capability** (Perplexity, ChatGPT with Search, Gemini Deep Research, Claude.ai, Kimi, 豆包, 元宝, etc.) — used by the **Research Hand-off** protocol (§Step 3.1 below) during the research phases of card generation. This skill does not call those chat AIs directly; it produces research prompts that the user runs in their preferred tool and brings results back
+- **Content policy caveat**: Some chat AIs refuse cognitive modeling of politically sensitive agents. Known case: Gemini refuses to analyze Chinese political leadership (returns empty or "I'm still learning" responses). If your preferred chat AI returns a content-policy refusal, switch to an alternative (Claude.ai and ChatGPT are generally more permissive for analytical/academic framing). As a last resort, generate a `system-derived` card from training knowledge with `strength` capped at `medium` and note the limitation in `honesty_boundaries`
 
 **Intentionally NOT required**: CLI-agent-specific web-fetching tools such as Claude Code's `WebFetch`. Research is delegated to the user's chat AI via copy-paste, which keeps this skill portable across CLI agents.
 
@@ -412,7 +413,11 @@ If any critical parameter is missing, ask one clarifying question.
    - Remove references to `git rev-parse --show-toplevel` and other Bash commands
    - Remove Checkpoint language that implies multi-turn interaction (collapse into "run all phases sequentially in a single response")
 5. **Prepend** a chat-AI preamble:
-   > *"You are being asked to generate a Psychohistory character card by following a phase-based methodology. Execute Phase 0 through the final Phase sequentially in one response. Your output must be two markdown code blocks: first the full references.md content, then the JSON. Do not save files directly — a human will handle that after receiving your response."*
+   > *"You are being asked to generate a Psychohistory character card by following a phase-based methodology. Execute Phase 0 through the final Phase sequentially in one response. Your output must be two markdown code blocks: first the full references.md content, then the JSON.*
+   >
+   > *JSON field names: use ONLY the v1.1 schema field names specified in the prompt below. Do not invent new field names (e.g., do not use `entity_model`, `base_stats`, `core_missions` — use `mental_models`, `decision_heuristics`, `core_objectives`). If the prompt specifies an array field (`mental_models`, `decision_heuristics`, `concession_triggers`, `red_lines`, `known_biases`, `honesty_boundaries`), populate each with concrete objects — do not leave arrays empty while putting content only in references.md.*
+   >
+   > *Do not save files directly — a human will handle that after receiving your response."*
 6. **Append** a postamble:
    > *"Once the human receives your response, they will bring it back to Claude Code where the `psychohistory-character-toolkit` skill will validate the JSON against the v1.1 schema and save both artifacts to the correct paths."*
 
@@ -440,7 +445,8 @@ validate and save them.
 When the user returns with chat-AI-generated content (often pasted as two code blocks or as one large block):
 
 1. Parse the user's paste — identify the references.md content and the JSON content
-2. Compute output paths (Step 1 rules apply)
+2. **Empty-array check**: If the JSON contains empty arrays for fields that should have content (`mental_models`, `decision_heuristics`, `concession_triggers`, `red_lines`, `known_biases`, `honesty_boundaries`) but the references.md has substantive analysis in the corresponding sections (typically §3/§4), extract the content from references.md and populate the JSON arrays before proceeding. This is a known chat-AI behavior pattern.
+3. Compute output paths (Step 1 rules apply)
 3. Write both files
 4. Run Step 4 schema validation on the JSON
 5. Report validation results; if failures, show specific errors and ask user to either fix manually or request a re-export
@@ -478,6 +484,7 @@ This replaces the pre-v1.1 Tier 2 which directly invoked Nuwa. Nuwa is still inv
 | Recent-data research cannot be completed via Research Hand-off | Pause, show the user what was attempted, offer to (a) retry with a different chat AI, (b) fall back to training knowledge with `strength: low`, or (c) mark fields as "data unavailable"; never fabricate |
 | JSON Schema validation fails | Report the specific field and error; return to the compilation Phase for correction; re-run validation |
 | Python `jsonschema` library missing | Report and instruct `pip install jsonschema`; card is still saved but unvalidated (flagged) |
+| Chat AI refuses research due to content policy (e.g., Gemini on Chinese/Russian/Iranian leadership) | Switch to alternative chat AI (Claude.ai, ChatGPT); if all refuse, fall back to `system-derived` card with `strength` capped at `medium` and note limitation in `honesty_boundaries` |
 | File write fails | Report path + error; ask user to check permissions |
 
 ---
