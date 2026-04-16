@@ -181,6 +181,8 @@ If validation fails, output specific errors and request correction.
 
 Core question: **Who has independent decision-making power in this event?**
 
+**Personal vs. Organization typing**: For each entity agent, ask: does this agent's decision function include "personal political gain" as a variable independent of national/organizational interest? If yes → model as **personal entity** (captures the divergence between personal and institutional incentives). If no → model as **organization/leadership** (institutional logic only, no unnecessary modeling complexity). This determines which character-toolkit prompt to use (prompt-01 for personal, prompt-02 for organization).
+
 For each entity agent, load their character card (Phase 1.5) and output:
 - **Identity**: Name, position, faction
 - **Core objectives**: What do they want in this event?

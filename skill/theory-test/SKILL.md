@@ -73,6 +73,14 @@ Confirm with the user:
    - A combination
 4. **What triggered this theory?** What did the user observe? (These become mandatory test events.)
 
+#### Agent Typing Check
+
+After identifying the target agent and understanding the theory, verify that the agent's card type matches the theory's implications.
+
+**Personal vs. Organization typing**: Does the agent's decision function include "personal political gain" as a variable independent of national/organizational interest? If yes → personal entity card. If no → organization/leadership card.
+
+**Proactive reframing**: Users often focus on *what* they think is happening but may not have considered *at what level* it operates. If the theory implies personal-institutional divergence (e.g., "Country X's real strategy is...") but the agent is organization-typed, flag this: the theory might be better expressed as a claim about the leader's personal incentives. Conversely, a theory about a leader's behavior may actually describe institutional dynamics. **Suggest reframing the theory when the typing analysis reveals a better-fitting target** — this sharpens the theory before testing, not after.
+
 If the user provides a clear theory with context -> proceed to Phase 1.
 
 ---

@@ -121,6 +121,8 @@ From the verified observation set:
 
 For each, determine type: entity (personal/organization) or collective.
 
+**Personal vs. Organization typing**: Does the agent's decision function include "personal political gain" as a variable independent of national/organizational interest? If yes → model as **personal entity** (captures the divergence between personal and institutional incentives). If no → model as **organization/leadership** (institutional logic only, no unnecessary modeling complexity). This determines which character-toolkit prompt to use (prompt-01 for personal, prompt-02 for organization).
+
 #### 2.2 Load Character Cards
 
 For each primary agent:
