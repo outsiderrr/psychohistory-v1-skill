@@ -77,9 +77,11 @@ Confirm with the user:
 
 After identifying the target agent and understanding the theory, verify that the agent's card type matches the theory's implications.
 
-**Personal vs. Organization typing**: Does the agent's decision function include "personal political gain" as a variable independent of national/organizational interest? If yes → personal entity card. If no → organization/leadership card.
+**Personal vs. Organization typing — divergence test**: In this specific scenario, can the agent's personal interest point toward a *different decision direction* than organizational/national interest? If yes → personal entity card. If no → organization/leadership card. A leader's strong personal control over an organization is NOT itself a reason to use personal entity modeling — only actual directional divergence matters.
 
-**Proactive reframing**: Users often focus on *what* they think is happening but may not have considered *at what level* it operates. If the theory implies personal-institutional divergence (e.g., "Country X's real strategy is...") but the agent is organization-typed, flag this: the theory might be better expressed as a claim about the leader's personal incentives. Conversely, a theory about a leader's behavior may actually describe institutional dynamics. **Suggest reframing the theory when the typing analysis reveals a better-fitting target** — this sharpens the theory before testing, not after.
+> Example (no divergence → organization): Xi Jinping in a dense diplomacy scenario. Personal interest = demonstrate China is not isolated. CCP institutional interest = demonstrate China is not isolated. Interests align → organization entity.
+
+**Proactive reframing**: Users often focus on *what* they think is happening but may not have considered *at what level* it operates. If the theory implies personal-institutional divergence (e.g., "Country X's real strategy is...") but the divergence test shows interests align, flag this: the theory might be about institutional dynamics, not personal motives. Conversely, a theory framed as institutional may actually hinge on a leader's personal incentives diverging from organizational interest. **Suggest reframing the theory when the divergence test reveals a better-fitting target** — this sharpens the theory before testing, not after.
 
 If the user provides a clear theory with context -> proceed to Phase 1.
 

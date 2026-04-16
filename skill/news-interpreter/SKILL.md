@@ -121,7 +121,9 @@ From the verified observation set:
 
 For each, determine type: entity (personal/organization) or collective.
 
-**Personal vs. Organization typing**: Does the agent's decision function include "personal political gain" as a variable independent of national/organizational interest? If yes → model as **personal entity** (captures the divergence between personal and institutional incentives). If no → model as **organization/leadership** (institutional logic only, no unnecessary modeling complexity). This determines which character-toolkit prompt to use (prompt-01 for personal, prompt-02 for organization).
+**Personal vs. Organization typing — divergence test**: In this specific scenario, can the agent's personal interest point toward a *different decision direction* than organizational/national interest? If yes → model as **personal entity** (prompt-01). If no → model as **organization/leadership** (prompt-02). A leader's strong personal control over an organization is NOT itself a reason to use personal entity modeling — only use personal when personal interest can produce a *different decision* than institutional interest in the scenario at hand.
+
+> Example (no divergence → organization): Xi Jinping in a dense diplomacy scenario. Personal interest = demonstrate China is not isolated. CCP institutional interest = demonstrate China is not isolated. Interests align in direction → no divergence → organization entity, prompt-02.
 
 #### 2.2 Load Character Cards
 
