@@ -84,7 +84,7 @@ If `PSYCHOHISTORY_RESEARCH_TOOL` is not set → proceed to Step 2.
 
 2. **Always prepend** the following citation format instruction to the top of the prompt:
 
-   > **CITATION FORMAT: Every factual claim or analytical conclusion must include an inline citation [N] (e.g., "IRGC controls an estimated 30% of Iran's economy [3]"). At the end of your response, provide a numbered source list: [N] Author/Organization, "Title", Date, URL. Claims without inline citations are treated as unsourced and may be discarded.**
+   > **CITATION FORMAT: Every factual claim or analytical conclusion must include an inline citation [N] (e.g., "IRGC controls an estimated 30% of Iran's economy [3]"). At the end of your response, provide a numbered source list: [N] Author/Organization, "Title", Date, URL. The source list MUST cover ALL [N] numbers used in the text — if you cite 30 sources, list all 30. No [N] in the text may reference a source absent from the list. Claims without inline citations are treated as unsourced and may be discarded.**
 
 3. **If `output_language` ≠ English**, also prepend the following language instruction:
 
