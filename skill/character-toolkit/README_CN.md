@@ -99,7 +99,7 @@
 以下规则适用于所有类型的角色卡：
 
 1. **所有JSON必须通过标准解析器验证** — 不允许有语法错误
-2. **所有文本内容使用英文** — name、description等字段一律英文
+2. **JSON 卡字段使用英文；references.md 可以使用用户首选语言** — JSON 里的 `name`、`description`、mental model 名称等字段一律英文。`references.md`（主研究产物，给人审阅用的）可以使用用户首选语言——在生成卡时通过 `output_language` 设定。非英文 references.md 编译成 JSON 时使用 `skill/references/glossary-terms.md` 的标准术语翻译
 3. **日期格式一律 YYYY-MM-DD** — 不接受不完整日期
 4. **agent_id 一律小写字母+连字符** — 如 `us-federal-reserve`、`maga-base`
 5. **每张卡必须有 honesty_boundaries** — 明确说明这张卡做不到什么

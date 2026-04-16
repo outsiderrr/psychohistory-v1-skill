@@ -248,6 +248,8 @@
 
 ## Phase 8 — JSON 结构化与产出
 
+**如果 `references.md` 是非英文语言**（因为 `output_language` 设为非英文），编译 JSON 时将内容翻译为英文填入各字段。使用 `skill/references/glossary-terms.md` 确保博弈论 / 心理学 / 组织行为学术语的标准翻译。
+
 ### JSON 结构（character-schema v1.1 collective 分支）
 
 ```json

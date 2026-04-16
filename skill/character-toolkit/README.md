@@ -99,7 +99,7 @@ In the upcoming `engine/` module (see [`../../engine/README.md`](../../engine/RE
 These rules apply to every type of character card:
 
 1. **All JSON must pass standard parser validation** — no syntax errors allowed
-2. **All text content in English** — fields like `name` and `description` must be English-only
+2. **JSON card fields in English; references.md in user's preferred language** — `name`, `description`, mental model names, and all other JSON fields are always English. `references.md` (the primary research artifact reviewed by humans) can be in the user's preferred language, set via `output_language` at generation time. When compiling non-English references.md into English JSON, use `skill/references/glossary-terms.md` for standard terminology
 3. **Date format: YYYY-MM-DD only** — no incomplete dates accepted
 4. **`agent_id` is lowercase alphanumeric + hyphens** — e.g. `us-federal-reserve`, `maga-base`
 5. **Every card must have `honesty_boundaries`** — explicitly stating what the card cannot capture

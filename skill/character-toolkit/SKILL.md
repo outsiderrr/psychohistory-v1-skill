@@ -104,6 +104,14 @@ Before invoking the selected prompt's Phase flow, **read its Phase 0 section** u
 
 This intake step exists because `prompt-0X` files have mandatory Phase 0 inputs (scenario background, modeling granularity, endpoint card IDs for relationships, etc.) that the orchestration layer cannot infer from the user's initial intent alone. Without this step, the orchestrator would route to the prompt and let it ask — causing the first Phase to stall on missing parameters.
 
+### Scenario-level setting (applies to all card types)
+
+| Setting | Default | Description |
+|---|---|---|
+| `output_language` | English | Language for `references.md` content and Phase 3-4 analysis text. **JSON card fields are always English regardless.** Set once per scenario — all cards in the same scenario should use the same output language for consistency. |
+
+If the user is non-English-speaking, proactively ask: *"你希望研究笔记和分析过程用中文还是英文？（JSON 卡的字段始终是英文，不受此设置影响）"* If the user says "Chinese" / "中文", set `output_language = Chinese` for the rest of this scenario.
+
 ### Required inputs by card type
 
 | Prompt | User-supplied Phase 0 inputs | Notes |
@@ -185,6 +193,8 @@ If the wrapper shortcut is unavailable or failed, use the standard protocol:
    - `{TARGET_NAME}`, `{AGENT_A_NAME}`, `{AGENT_B_NAME}` — target names
    - `{TIME_WINDOW_START}`, `{TIME_WINDOW_END}` — typically "2-3 years ago" through today
    - `{SCENARIO_CONTEXT}`, `{TARGET_AGENT_ID}` — scenario-level context
+   - **If `output_language` ≠ English**, prepend the following instruction to the very top of the filled template (before the first line of the research prompt body):
+     > `**IMPORTANT: Return ALL of your findings in {output_language}. Even when summarizing sources in other languages, write your summaries and analysis in {output_language}. Section headers (§0, §1.1, etc.) should remain as-is in English for structural recognition. Source URLs and proper nouns may remain in their original language.**`
 
 4. **Emit the filled research prompt** to the user as a copy-pasteable markdown code block, preceded by guidance:
 
