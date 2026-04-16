@@ -177,6 +177,8 @@ These require programmatic execution beyond what markdown prompts alone can do:
 - [ ] **Collective agents as first-class causal nodes** — promote `observable_state` values to Event nodes on the tree when thresholds become strategically relevant, so market panics and sentiment phase transitions have a structural home rather than being hidden inside entity decision functions
 - [ ] Standalone web app for visual tree + interactive scenario planning
 - [ ] Deep integration with Nuwa.skill
+- [ ] **Official Agent Card Library** — community-maintained collection of high-quality character cards for major geopolitical actors (countries, leaders, organizations, collectives). Each card has a `data_cutoff` date and is periodically refreshed. Users contribute updates via PR with evidence chains. The library makes all Psychohistory skills faster to start because you don't generate from scratch
+- [ ] **Incremental Card Update Protocol** — workflow for refreshing an existing card to a new `data_cutoff` without full regeneration. Research Hand-off covers only the delta period; new cases are appended to `references.md §2`; patterns re-evaluated; JSON recompiled. ~15-30 min vs ~1 hour for full generation
 
 ## License
 

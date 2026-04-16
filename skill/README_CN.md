@@ -173,6 +173,8 @@ Psychohistory 使用标准化的 JSON 人物卡来建模关键决策者的认知
 - [ ] **群体 agent 升级为一等因果节点** —— 当 `observable_state` 的某个指标跨越战略相关阈值时，自动提升为树上的一等 Event 节点，让市场恐慌、情绪相变、社会级联有独立的结构化位置，而不是隐藏在实体 agent 的决策函数里
 - [ ] 独立 Web 应用（可视化可能性树 + 交互式场景规划）
 - [ ] 与女娲.skill 的深度集成
+- [ ] **官方角色卡库（Official Agent Card Library）** —— 社区维护的主要地缘角色高质量角色卡集合（国家政府、领导人、组织、群体）。每张卡有 `data_cutoff` 时间戳并定期更新。用户通过 PR 贡献新卡或更新（附带证据链）。卡库让所有 Psychohistory skill 无需从零生成即可快速启动分析
+- [ ] **增量更新协议（Incremental Card Update Protocol）** —— 对已有角色卡做增量刷新的工作流：Research Hand-off 只查 delta 期间的新事件，追加到 references.md §2，重新跑模式提炼，重编 JSON。~15-30 分钟 vs 全量生成的 ~1 小时
 
 ## 许可证
 
