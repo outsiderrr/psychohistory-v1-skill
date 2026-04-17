@@ -171,7 +171,20 @@ Interactive mode is activated when the user explicitly requests it with "interac
 
 `prompt-04-relationship.md` has a Phase 0 **hard gate**: both endpoint cards must exist and pass schema validation before proceeding. This skill enforces the gate strictly — if either endpoint card is missing or invalid, terminate the flow and report specifically which card is missing. **Do not attempt to "fake" the gate** or generate a relationship card against nonexistent endpoints.
 
-### 3.4 Writing Output Files
+### 3.4 Nuwa Availability Check (prompt-01 only)
+
+`prompt-01-personal-entity.md` Phase 1 delegates cognitive distillation to the `huashu-nuwa` Skill, which is **not built into any CLI agent or chat AI** — it is an external open-source project (github.com/alchaincyf/nuwa-skill) that must be installed via `npx skills add alchaincyf/nuwa-skill`. Before executing prompt-01 Phase 1:
+
+1. **Check availability**: verify `.claude/skills/huashu-nuwa` exists (or equivalent install location for the current CLI agent):
+   ```bash
+   test -e "$HOME/.claude/skills/huashu-nuwa" && echo "installed" || echo "missing"
+   ```
+2. **If installed** → proceed with the primary Nuwa path (Phase 1 as written).
+3. **If missing** → tell the user: *"prompt-01's primary path requires the `huashu-nuwa` Skill, which is not installed. You have two options: (a) install it with `npx skills add alchaincyf/nuwa-skill --yes` then restart this session, or (b) proceed now using the Appendix Research Hand-off Template as a fallback — the card will be generated via single-prompt research rather than Nuwa's 6-agent parallel distillation, which is acceptable for information-rich public figures but may produce less complete results for information-scarce subjects."* Wait for the user's decision before proceeding. If fallback is chosen, follow the Appendix instead of Phase 1, and record the fallback in references.md §1.
+
+**Do not silently fall back.** A silent fallback was the root cause of dry-run Finding F-022 — the user thought they were getting the primary path when in fact the skill was skipping Nuwa entirely.
+
+### 3.5 Writing Output Files
 
 As each Phase completes, write its output to the correct file via the `Edit` or `Write` tool:
 
@@ -401,7 +414,14 @@ If any critical parameter is missing, ask one clarifying question.
 ### Step E2: Load and transform the prompt
 
 1. **Read** the appropriate `prompt-0X-*.md` file via the `Read` tool
-2. **Extract** the section from `# 提示词正文` through the end of the final Phase's output requirements
+
+2. **Extract** the prompt content:
+   - **For prompt-02 / prompt-03 / prompt-04**: extract the section from `# 提示词正文` through the end of the final Phase's output requirements.
+   - **For prompt-01 (personal-entity)**: the primary Phase 1 flow delegates to the `huashu-nuwa` Skill, which runs **only in Claude Code CLI** (installed via `npx skills add alchaincyf/nuwa-skill` — it is NOT a chat-AI built-in). Chat AIs cannot execute it. Therefore:
+     - **Do not extract Phase 1's Nuwa-invocation content.** Instead, extract Phase 0 (Pre-confirmation) + the **Appendix: Research Hand-off Template** section + Phase 2-onwards' references.md structure requirements. Stitch them into a coherent single-response flow: Phase 0 → run the Research Hand-off Template as Phase 1 → Phase 2 integration → Phase 3 JSON compilation.
+     - **Add an explicit transparency notice** at the top of the emitted prompt: *"⚠️ This prompt uses the Research Hand-off fallback path. The primary `huashu-nuwa` Skill path is unavailable because Nuwa runs only in Claude Code CLI, not in chat AI environments. Card quality for information-rich public figures is typically high via this fallback; for information-scarce subjects, results may be less complete than the primary Nuwa path would produce."*
+     - **Record the fallback** in the emitted prompt's references.md §1 instruction: require the chat AI to write "Generated via Research Hand-off fallback; Nuwa skill unavailable in this environment." at the top of §1.
+
 3. **Substitute** the placeholder fields with the user's values:
    - `【目标人物】` / `【目标组织】` / `【目标群体】` → user-specified target
    - `【场景背景】` → user-specified scenario
@@ -480,7 +500,8 @@ This replaces the pre-v1.1 Tier 2 which directly invoked Nuwa. Nuwa is still inv
 | `git rev-parse --show-toplevel` fails | Search for `skill/SKILL.md` marker file; if not found, ask user for project root |
 | Target card type unclear | Ask one clarifying question; default to `personal-entity` if the user's description mentions a named individual |
 | prompt-04 Phase 0 gate fails (missing endpoint cards) | Report specifically which endpoint is missing; offer to generate it first (sub-invocation) or terminate |
-| Nuwa.skill invocation fails (during prompt-01 Phase 1) | Report Nuwa's error; offer to fall back to Export Mode |
+| Nuwa.skill not installed (CLI, prompt-01 Phase 1) | Follow Step 3.4: inform user Nuwa is external (`npx skills add alchaincyf/nuwa-skill`), ask them to (a) install + restart, or (b) proceed with Research Hand-off fallback. Never fall back silently. |
+| Nuwa.skill invocation fails mid-run (CLI, prompt-01 Phase 1) | Report Nuwa's error; offer to retry, fall back to Research Hand-off with fallback noted in references.md §1, or abort |
 | Recent-data research cannot be completed via Research Hand-off | Pause, show the user what was attempted, offer to (a) retry with a different chat AI, (b) fall back to training knowledge with `strength: low`, or (c) mark fields as "data unavailable"; never fabricate |
 | JSON Schema validation fails | Report the specific field and error; return to the compilation Phase for correction; re-run validation |
 | Python `jsonschema` library missing | Report and instruct `pip install jsonschema`; card is still saved but unvalidated (flagged) |
