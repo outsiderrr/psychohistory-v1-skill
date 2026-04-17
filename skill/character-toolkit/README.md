@@ -59,10 +59,6 @@ This toolkit intentionally does **not** depend on Claude Code's `WebFetch` or an
 
 This keeps the toolkit portable across CLI agents — any CLI agent that can read/write files and run Python can use it — and also produces **higher-quality research than single-URL fetching**, because search-capable chat AIs do multi-step research with cross-referencing and citation tracking.
 
-### Chat-AI as an escape hatch (Export Mode)
-
-If you want to generate an **entire card** inside a chat AI rather than using CLI at all, invoke `SKILL.md` in **Export Mode**. It produces a self-contained, chat-AI-adapted prompt you can paste into ChatGPT / Claude.ai / Trae / Gemini / etc. After the chat AI responds, bring the `references.md` + JSON content back to your CLI session for validation and saving.
-
 ### Automated research via wrapper scripts (available now)
 
 The `../research-handoff/wrappers/` subdirectory provides reference Bash scripts for automating the Research Hand-off copy-paste via direct API calls to search-capable LLMs. Users set the `PSYCHOHISTORY_RESEARCH_TOOL` environment variable to an executable wrapper path, and `SKILL.md` Step 3.1.0 automatically routes research prompts through it — skipping the manual copy-paste entirely.

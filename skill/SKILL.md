@@ -136,25 +136,19 @@ IF environment == CLI:
 
 Note: Nuwa is no longer invoked directly from this router. It is now a sub-step of prompt-01-personal-entity.md Phase 1 inside character-toolkit. This gives personal-entity cards the same phase-based methodology (references.md primary, strength grading, type-specific honesty_boundaries disclaimers) as organization and collective cards.
 
-#### Tier 3: Export Mode / User-Provided (Chat Environment or Final Fallback)
+#### Tier 3: User-Provided Fallback (when Tier 2 cannot complete)
 
-If in Chat environment OR CLI Tier 2 failed irrecoverably, offer the user the following options in order of preference:
+If CLI Tier 2 fails irrecoverably (e.g., research unavailable and cannot be worked around), offer the user the following options in order of preference:
 
-**Option A (recommended, CLI available): character-toolkit Export Mode**
+**Option A: Paste an existing card**
 
-From CLI, invoke `psychohistory-character-toolkit` in Export Mode. It will generate a self-contained prompt the user can paste into their preferred chat AI (ChatGPT, Claude.ai, Trae, Gemini, etc.). Once the chat AI produces output, the user returns to CLI with the references.md + JSON content, and character-toolkit validates and saves them to the canonical paths.
+If the user already has a pre-generated JSON card (from community, previous Nuwa run, or their own prior work), they can paste it directly. Validate against character-schema v1.1. On validation failure, show specific errors and offer Option B or C.
 
-Instruct user: *"I'll generate an export prompt for [target]. Paste it into your preferred AI, receive the references.md + JSON output, then paste both back here so I can validate and save them."*
+**Option B: Describe in natural language**
 
-**Option B: Paste an existing card**
+If the user wants minimal effort and Option A is unavailable, describe the agent's characteristics in natural language (thinking style, decision patterns, core values, blind spots). Construct a `system-derived` card from the description. Tag `source: system-derived`. Warn that this produces a shallow card suitable only for low-stakes analysis — upgrade via Tier 2 or Option A before serious use.
 
-If the user already has a pre-generated JSON card (from community, previous Nuwa run, or their own prior work), they can paste it directly. Validate against character-schema v1.1. On validation failure, show specific errors and offer Option A or C.
-
-**Option C: Describe in natural language**
-
-If the user wants minimal effort and Options A and B are unavailable, describe the agent's characteristics in natural language (thinking style, decision patterns, core values, blind spots). Construct a `system-derived` card from the description. Tag `source: system-derived`. Warn that this produces a shallow card suitable only for low-stakes analysis — upgrade via Option A or B before serious use.
-
-**Option D: Proceed without a card**
+**Option C: Proceed without a card**
 
 Analyze the agent based on publicly known information without a formal card. All reasoning about this agent is tagged `source: system-derived`. The modeling will be shallower; use only for low-stakes or illustrative scenarios.
 

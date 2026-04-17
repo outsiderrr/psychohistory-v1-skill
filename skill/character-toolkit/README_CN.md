@@ -59,10 +59,6 @@
 
 这让本工具包在 CLI agent 之间可移植——任何能读写文件、能跑 Python 的 CLI agent 都能用——同时产出的研究质量**高于单 URL 抓取**，因为带搜索能力的对话 AI 会做多步骤研究、交叉验证、引用追踪。
 
-### 对话 AI 作为逃逸通道（Export 模式）
-
-如果你想**整张卡**都在对话 AI 里生成（不用 CLI），在 CLI 里调用 `SKILL.md` 的 **Export 模式**。它会输出一段适配过的自包含提示词，你复制到 ChatGPT / Claude.ai / Trae / Gemini 等里执行。完成后把 references.md + JSON 内容带回 CLI 做校验和落盘。
-
 ### 通过 wrapper 脚本自动化研究（已可用）
 
 `../research-handoff/wrappers/` 子目录提供了一组参考 Bash 脚本，通过直接调用有搜索能力的 LLM API 来自动化 Research Hand-off 的复制粘贴步骤。用户把 `PSYCHOHISTORY_RESEARCH_TOOL` 环境变量设置为 wrapper 脚本的路径，`SKILL.md` Step 3.1.0 就会自动把研究提示词通过 wrapper 路由——**完全跳过手动复制粘贴**。

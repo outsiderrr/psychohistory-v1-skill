@@ -1,6 +1,6 @@
 ---
 name: psychohistory-character-toolkit
-description: "Psychohistory Character Card Generation Toolkit. Orchestrates generation of character cards (personal / organization / collective) and inter-agent relationships, routes to phase-based prompts (prompt-01/02/03/04), enforces the 5 design principles, produces references.md as primary artifact with JSON as compressed index, runs Python schema validation. CLI-first; Export mode emits chat-AI-ready prompts on request. Triggers: 'generate character card', 'create agent card', 'add agent to scenario', 'make a card for', 'export character prompt', 'I need a card for', '生成角色卡', '为X做张卡', '导出 prompt'."
+description: "Psychohistory Character Card Generation Toolkit. Orchestrates generation of character cards (personal / organization / collective) and inter-agent relationships, routes to phase-based prompts (prompt-01/02/03/04), enforces the 5 design principles, produces references.md as primary artifact with JSON as compressed index, runs Python schema validation. CLI-first; personal-entity cards prefer the huashu-nuwa Skill when installed, fall back to Research Hand-off otherwise. Triggers: 'generate character card', 'create agent card', 'add agent to scenario', 'make a card for', 'I need a card for', '生成角色卡', '为X做张卡'."
 ---
 
 # Psychohistory · Character Card Generation Toolkit
@@ -8,7 +8,7 @@ description: "Psychohistory Character Card Generation Toolkit. Orchestrates gene
 > Orchestration skill for generating character cards and inter-agent relationship definitions.
 > Delegates phase-by-phase execution to the four phase-based prompts in this directory (`prompt-01` / `prompt-02` / `prompt-03` / `prompt-04`) and enforces cross-cutting concerns (5 design principles, output paths, schema validation).
 >
-> **CLI-first design**: assumes filesystem access, `git`, `python3` + `jsonschema`, and `WebFetch`. For chat-AI users, see §Export Mode below.
+> **CLI-first design**: assumes filesystem access, `git`, `python3` + `jsonschema`, and `WebFetch`. This skill runs inside a CLI agent (Claude Code, Cline, Aider, etc.); it is not designed to execute inside a chat-AI environment.
 
 ---
 
@@ -26,8 +26,6 @@ This skill is designed for **CLI environments** and is **portable across CLI age
 
 **Optional enhancement — MCP (Model Context Protocol), not currently implemented**: if your CLI agent supports MCP and you have a search MCP server configured (e.g. Perplexity MCP, Brave Search MCP), the Research Hand-off copy-paste step could in principle be replaced by direct MCP tool calls. This is **not currently developed** — may be added in a future skill version if MCP search servers become widely available and standardized. See `character-toolkit/README.md` §CLI-first Design for the planned MCP integration note.
 
-**Chat-AI users** (users who want to run the full generation inside a chat AI rather than from a CLI at all): this skill does not execute natively in chat-AI environments. Instead, invoke this skill from CLI in **Export Mode** (§below) — it produces a self-contained prompt you can paste into any chat AI to execute the generation there.
-
 ---
 
 ## 5 Design Principles (enforced across all Phases)
@@ -44,13 +42,12 @@ All phase-based prompts under this toolkit enforce the following principles. Can
 
 ## Step 0 — Intent Detection
 
-When invoked, classify the user's request into one of three modes:
+When invoked, classify the user's request into one of two modes:
 
 | Intent pattern | Mode | Example triggers |
 |---|---|---|
 | "Generate/create a card for X" | **Single-Card** (default) | "Generate IRGC's card", "Create a card for Netanyahu" |
 | "Generate multiple cards" / "Set up all the X-side cards" | **Batch** | "Set up all the Iran-side cards for the US-Iran scenario" |
-| "Give me a prompt for X" / "Export for X" / "Run this in ChatGPT" | **Export** | "Export the org card prompt for IRGC so I can paste it into Claude.ai" |
 
 If the user's intent is ambiguous, ask **one** clarifying question before proceeding. Do not guess.
 
@@ -390,95 +387,6 @@ Total: 3 artifacts, 0 validation failures
 
 ---
 
-## Export Mode
-
-Export Mode produces a self-contained prompt that the user can paste into any chat AI (ChatGPT, Claude.ai, Trae, Gemini, etc.) to execute the card generation there. Use this when:
-
-- The user explicitly asks for a chat-AI-ready prompt
-- The user wants to leverage a specific chat AI's strengths
-- The user wants to outsource generation to a collaborator who doesn't have Claude Code access
-
-Activation phrases: "give me a prompt for...", "export the prompt for...", "I want to run this in ChatGPT/Claude.ai/Trae", "生成提示词", "导出 prompt"
-
-### Step E1: Gather parameters
-
-Determine from the user:
-
-- **Card type** — personal-entity / organization-entity / collective / relationship
-- **Target** — specific agent_id or description (for relationship: target_a and target_b)
-- **Scenario context** — optional but often needed to contextualize the card
-- **For relationships only**: confirmation that both endpoint cards exist and are valid
-
-If any critical parameter is missing, ask one clarifying question.
-
-### Step E2: Load and transform the prompt
-
-1. **Read** the appropriate `prompt-0X-*.md` file via the `Read` tool
-
-2. **Extract** the prompt content:
-   - **For prompt-02 / prompt-03 / prompt-04**: extract the section from `# 提示词正文` through the end of the final Phase's output requirements.
-   - **For prompt-01 (personal-entity)**: the primary Phase 1 flow delegates to the `huashu-nuwa` Skill, which runs **only in Claude Code CLI** (installed via `npx skills add alchaincyf/nuwa-skill` — it is NOT a chat-AI built-in). Chat AIs cannot execute it. Therefore:
-     - **Do not extract Phase 1's Nuwa-invocation content.** Instead, extract Phase 0 (Pre-confirmation) + the **Appendix: Research Hand-off Template** section + Phase 2-onwards' references.md structure requirements. Stitch them into a coherent single-response flow: Phase 0 → run the Research Hand-off Template as Phase 1 → Phase 2 integration → Phase 3 JSON compilation.
-     - **Add an explicit transparency notice** at the top of the emitted prompt: *"⚠️ This prompt uses the Research Hand-off fallback path. The primary `huashu-nuwa` Skill path is unavailable because Nuwa runs only in Claude Code CLI, not in chat AI environments. Card quality for information-rich public figures is typically high via this fallback; for information-scarce subjects, results may be less complete than the primary Nuwa path would produce."*
-     - **Record the fallback** in the emitted prompt's references.md §1 instruction: require the chat AI to write "Generated via Research Hand-off fallback; Nuwa skill unavailable in this environment." at the top of §1.
-
-3. **Substitute** the placeholder fields with the user's values:
-   - `【目标人物】` / `【目标组织】` / `【目标群体】` → user-specified target
-   - `【场景背景】` → user-specified scenario
-   - `【建模粒度】`, `【关联个人卡】`, `【角色 A】`, `【角色 B】` → fill as appropriate
-4. **Rewrite** CLI-specific content for chat-AI compatibility:
-   - Remove absolute / project-root-relative file save paths
-   - Replace file-writing instructions with: "Output the references.md content as one markdown code block, then the JSON as a second code block. Do not attempt to save files."
-   - Remove the Python `jsonschema` validation step (chat AIs cannot run it)
-   - Remove references to `git rev-parse --show-toplevel` and other Bash commands
-   - Remove Checkpoint language that implies multi-turn interaction (collapse into "run all phases sequentially in a single response")
-5. **Prepend** a chat-AI preamble:
-   > *"You are being asked to generate a Psychohistory character card by following a phase-based methodology. Execute Phase 0 through the final Phase sequentially in one response. Your output must be two markdown code blocks: first the full references.md content, then the JSON.*
-   >
-   > *JSON field names: use ONLY the v1.1 schema field names specified in the prompt below. Do not invent new field names (e.g., do not use `entity_model`, `base_stats`, `core_missions` — use `mental_models`, `decision_heuristics`, `core_objectives`). If the prompt specifies an array field (`mental_models`, `decision_heuristics`, `concession_triggers`, `red_lines`, `known_biases`, `honesty_boundaries`), populate each with concrete objects — do not leave arrays empty while putting content only in references.md.*
-   >
-   > *Do not save files directly — a human will handle that after receiving your response."*
-6. **Append** a postamble:
-   > *"Once the human receives your response, they will bring it back to Claude Code where the `psychohistory-character-toolkit` skill will validate the JSON against the v1.1 schema and save both artifacts to the correct paths."*
-
-### Step E3: Emit the export
-
-Output the transformed prompt to the user as a clearly-marked copy-pasteable block:
-
-```
-📋 **Export prompt ready** — copy everything between the triple-dashes below
-and paste it into your chat AI.
-
-Once you receive a response, bring the references.md and JSON content back
-here and say "integrate these export results for <agent_id>" so I can
-validate and save them.
-
----
-
-[the transformed prompt]
-
----
-```
-
-### Step E4: Integrate results when they return
-
-When the user returns with chat-AI-generated content (often pasted as two code blocks or as one large block):
-
-1. Parse the user's paste — identify the references.md content and the JSON content
-2. **Empty-array check**: If the JSON contains empty arrays for fields that should have content (`mental_models`, `decision_heuristics`, `concession_triggers`, `red_lines`, `known_biases`, `honesty_boundaries`) but the references.md has substantive analysis in the corresponding sections (typically §3/§4), extract the content from references.md and populate the JSON arrays before proceeding. This is a known chat-AI behavior pattern.
-3. Compute output paths (Step 1 rules apply)
-3. Write both files
-4. Run Step 4 schema validation on the JSON
-5. Report validation results; if failures, show specific errors and ask user to either fix manually or request a re-export
-
-### What Export Mode does NOT do
-
-- Does not save files (the chat AI produces output as text; human copies it back)
-- Does not run validation on the chat AI's output directly (validation happens on integration back)
-- Does not support batch export — export is per-card by design (if you need 5 cards, run export 5 times)
-
----
-
 ## Interaction with `skill/SKILL.md`
 
 `skill/SKILL.md` is the main Psychohistory scenario analysis skill. Its Phase 1.5 "Character Card Loading Router" handles the case when a scenario analysis needs an agent card that isn't in the official library.
@@ -486,8 +394,7 @@ When the user returns with chat-AI-generated content (often pasted as two code b
 Under the v1.1 architecture:
 
 - **Phase 1.5 Tier 1** (official library lookup) — unchanged
-- **Phase 1.5 Tier 2** (CLI auto-generation) — **delegates to this toolkit**. The main scenario skill invokes `psychohistory-character-toolkit` with the target agent and scenario context; this skill runs the full phase-based pipeline and saves the card
-- **Phase 1.5 Tier 3** (chat fallback) — **uses this toolkit's Export Mode**. Produces a self-contained prompt for the user to run in a chat AI, then re-ingests the results via Step E4
+- **Phase 1.5 Tier 2** (CLI auto-generation) — **delegates to this toolkit**. The main scenario skill invokes `psychohistory-character-toolkit` with the target agent and scenario context; this skill runs the full phase-based pipeline and saves the card. For personal-entity cards, Phase 1 prefers the `huashu-nuwa` Skill when installed and falls back to the Research Hand-off path inside `prompt-01` when it is not
 
 This replaces the pre-v1.1 Tier 2 which directly invoked Nuwa. Nuwa is still invoked, but now as a sub-step inside `prompt-01-personal-entity.md` Phase 1, not directly from the main scenario skill.
 
@@ -519,9 +426,7 @@ This replaces the pre-v1.1 Tier 2 which directly invoked Nuwa. Nuwa is still inv
 | Generate a collective card | "Create a profile for [group name] affecting [target_agent]" |
 | Define a relationship | "Define the relationship between [agent_a] and [agent_b] in [scenario]" |
 | Batch generation | "Generate all the [X-side] cards for [scenario]" |
-| Export a prompt for chat AI | "Give me a prompt for generating [target] that I can paste into ChatGPT" |
 | Interactive mode | Add "step by step" or "interactive" to any of the above |
-| Integrate export results back | "Integrate these export results for [agent_id]" |
 
 ---
 
